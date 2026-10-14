@@ -123,6 +123,7 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from "../utils/ms_edge_tts";
 import { isEmpty } from "lodash-es";
 import { getModelProvider } from "../utils/model";
 import { RealtimeChat } from "@/app/components/realtime-chat";
+import { ReasoningEffortSelect } from "./model-config";
 import clsx from "clsx";
 import { getAvailableClientsCount, isMcpEnabled } from "../mcp/actions";
 
@@ -2044,6 +2045,28 @@ function _Chat() {
                 prompts={promptHints}
                 onPromptSelect={onPromptSelect}
               />
+
+              {session.mask.modelConfig.model === "gpt-6.1-sol" && (
+                <div
+                  className={styles["chat-reasoning-control"]}
+                  title={Locale.Settings.ReasoningEffort.SubTitle}
+                >
+                  <label htmlFor="chat-reasoning-effort">
+                    <BrainIcon />
+                    {Locale.Settings.ReasoningEffort.Title}
+                  </label>
+                  <ReasoningEffortSelect
+                    id="chat-reasoning-effort"
+                    value={session.mask.modelConfig.reasoningEffort}
+                    onChange={(effort) => {
+                      chatStore.updateTargetSession(session, (session) => {
+                        session.mask.modelConfig.reasoningEffort = effort;
+                        session.mask.syncGlobalConfig = false;
+                      });
+                    }}
+                  />
+                </div>
+              )}
 
               <ChatActions
                 uploadImage={uploadImage}

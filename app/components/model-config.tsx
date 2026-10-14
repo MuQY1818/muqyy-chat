@@ -8,16 +8,61 @@ import { useAllModels } from "../utils/hooks";
 import { groupBy } from "lodash-es";
 import styles from "./model-config.module.scss";
 import { getModelProvider } from "../utils/model";
+import { useEffect } from "react";
+
+export function ReasoningEffortSelect(props: {
+  id?: string;
+  value: ModelConfig["reasoningEffort"];
+  onChange: (value: ModelConfig["reasoningEffort"]) => void;
+}) {
+  return (
+    <Select
+      id={props.id}
+      aria-label={Locale.Settings.ReasoningEffort.Title}
+      value={props.value ?? "auto"}
+      align="left"
+      onChange={(e) =>
+        props.onChange(
+          ModalConfigValidator.reasoningEffort(e.currentTarget.value),
+        )
+      }
+    >
+      {["auto" as const, ...REASONING_EFFORTS].map((effort) => (
+        <option value={effort} key={effort}>
+          {Locale.Settings.ReasoningEffort.Options[effort]}
+        </option>
+      ))}
+    </Select>
+  );
+}
 
 export function ModelConfigList(props: {
   modelConfig: ModelConfig;
   updateConfig: (updater: (config: ModelConfig) => void) => void;
 }) {
   const allModels = useAllModels();
-  const groupModels = groupBy(
-    allModels.filter((v) => v.available),
-    "provider.providerName",
+  const availableModels = allModels.filter((model) => model.available);
+  const selectedModel = availableModels.find(
+    (model) =>
+      model.name === props.modelConfig.model &&
+      model.provider?.providerName === props.modelConfig.providerName,
   );
+  const effectiveModel =
+    selectedModel ??
+    availableModels.find((model) => model.isDefault) ??
+    availableModels[0];
+
+  useEffect(() => {
+    if (!selectedModel && effectiveModel) {
+      props.updateConfig((config) => {
+        config.model = ModalConfigValidator.model(effectiveModel.name);
+        config.providerName = effectiveModel.provider
+          ?.providerName as ServiceProvider;
+      });
+    }
+  }, [selectedModel, effectiveModel, props.updateConfig]);
+
+  const groupModels = groupBy(availableModels, "provider.providerName");
   const value = `${props.modelConfig.model}@${props.modelConfig?.providerName}`;
   const compressModelValue = `${props.modelConfig.compressModel}@${props.modelConfig?.compressProviderName}`;
 
@@ -49,29 +94,19 @@ export function ModelConfigList(props: {
           ))}
         </Select>
       </ListItem>
-      {props.modelConfig.model === "gpt-6.1-sol" && (
+      {effectiveModel?.name === "gpt-6.1-sol" && (
         <ListItem
           title={Locale.Settings.ReasoningEffort.Title}
           subTitle={Locale.Settings.ReasoningEffort.SubTitle}
         >
-          <Select
-            aria-label={Locale.Settings.ReasoningEffort.Title}
-            value={props.modelConfig.reasoningEffort ?? "auto"}
-            align="left"
-            onChange={(e) => {
+          <ReasoningEffortSelect
+            value={props.modelConfig.reasoningEffort}
+            onChange={(effort) => {
               props.updateConfig((config) => {
-                config.reasoningEffort = ModalConfigValidator.reasoningEffort(
-                  e.currentTarget.value,
-                );
+                config.reasoningEffort = effort;
               });
             }}
-          >
-            {["auto" as const, ...REASONING_EFFORTS].map((effort) => (
-              <option value={effort} key={effort}>
-                {Locale.Settings.ReasoningEffort.Options[effort]}
-              </option>
-            ))}
-          </Select>
+          />
         </ListItem>
       )}
       <ListItem
