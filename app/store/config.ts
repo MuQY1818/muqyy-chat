@@ -22,6 +22,15 @@ export type TTSModelType = (typeof DEFAULT_TTS_MODELS)[number];
 export type TTSVoiceType = (typeof DEFAULT_TTS_VOICES)[number];
 export type TTSEngineType = (typeof DEFAULT_TTS_ENGINES)[number];
 
+export const REASONING_EFFORTS = [
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+] as const;
+export type ReasoningEffort = (typeof REASONING_EFFORTS)[number];
+
 export enum SubmitKey {
   Enter = "Enter",
   CtrlEnter = "Ctrl + Enter",
@@ -66,6 +75,7 @@ export const DEFAULT_CONFIG = {
   modelConfig: {
     model: "gpt-4o-mini" as ModelType,
     providerName: "OpenAI" as ServiceProvider,
+    reasoningEffort: "auto" as ReasoningEffort | "auto",
     temperature: 0.5,
     top_p: 1,
     max_tokens: 4000,
@@ -141,6 +151,11 @@ export const TTSConfigValidator = {
 };
 
 export const ModalConfigValidator = {
+  reasoningEffort(x: string): ReasoningEffort | "auto" {
+    return REASONING_EFFORTS.includes(x as ReasoningEffort)
+      ? (x as ReasoningEffort)
+      : "auto";
+  },
   model(x: string) {
     return x as ModelType;
   },

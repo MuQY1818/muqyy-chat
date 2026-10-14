@@ -556,6 +556,18 @@ const en: LocaleType = {
     },
 
     Model: "Model",
+    ReasoningEffort: {
+      Title: "Reasoning effort",
+      SubTitle: "Higher effort usually takes longer and uses more tokens",
+      Options: {
+        auto: "Auto (model default)",
+        low: "Low (faster)",
+        medium: "Medium (recommended)",
+        high: "High",
+        xhigh: "Extra high",
+        max: "Maximum",
+      },
+    },
     CompressModel: {
       Title: "Summary Model",
       SubTitle: "Model used to compress history and generate title",

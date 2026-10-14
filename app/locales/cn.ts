@@ -550,6 +550,18 @@ const cn = {
     },
 
     Model: "模型 (model)",
+    ReasoningEffort: {
+      Title: "思考强度",
+      SubTitle: "强度越高，通常回复越慢、消耗更多额度",
+      Options: {
+        auto: "自动（模型默认）",
+        low: "低（更快）",
+        medium: "中（推荐）",
+        high: "高",
+        xhigh: "更高",
+        max: "最高",
+      },
+    },
     CompressModel: {
       Title: "对话摘要模型",
       SubTitle: "用于压缩历史记录、生成对话标题的模型",

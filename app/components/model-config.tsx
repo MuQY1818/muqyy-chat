@@ -1,5 +1,5 @@
 import { ServiceProvider } from "@/app/constant";
-import { ModalConfigValidator, ModelConfig } from "../store";
+import { ModalConfigValidator, ModelConfig, REASONING_EFFORTS } from "../store";
 
 import Locale from "../locales";
 import { InputRange } from "./input-range";
@@ -49,6 +49,31 @@ export function ModelConfigList(props: {
           ))}
         </Select>
       </ListItem>
+      {props.modelConfig.model === "gpt-6.1-sol" && (
+        <ListItem
+          title={Locale.Settings.ReasoningEffort.Title}
+          subTitle={Locale.Settings.ReasoningEffort.SubTitle}
+        >
+          <Select
+            aria-label={Locale.Settings.ReasoningEffort.Title}
+            value={props.modelConfig.reasoningEffort ?? "auto"}
+            align="left"
+            onChange={(e) => {
+              props.updateConfig((config) => {
+                config.reasoningEffort = ModalConfigValidator.reasoningEffort(
+                  e.currentTarget.value,
+                );
+              });
+            }}
+          >
+            {["auto" as const, ...REASONING_EFFORTS].map((effort) => (
+              <option value={effort} key={effort}>
+                {Locale.Settings.ReasoningEffort.Options[effort]}
+              </option>
+            ))}
+          </Select>
+        </ListItem>
+      )}
       <ListItem
         title={Locale.Settings.Temperature.Title}
         subTitle={Locale.Settings.Temperature.SubTitle}
