@@ -123,15 +123,16 @@ function getSummarizeModel(
   currentModel: string,
   providerName: string,
 ): string[] {
+  const configStore = useAppConfig.getState();
+  const accessStore = useAccessStore.getState();
+  const allModel = collectModelsWithDefaultModel(
+    configStore.models,
+    [configStore.customModels, accessStore.customModels].join(","),
+    accessStore.defaultModel,
+  );
+
   // if it is using gpt-* models, force to use 4o-mini to summarize
   if (currentModel.startsWith("gpt") || currentModel.startsWith("chatgpt")) {
-    const configStore = useAppConfig.getState();
-    const accessStore = useAccessStore.getState();
-    const allModel = collectModelsWithDefaultModel(
-      configStore.models,
-      [configStore.customModels, accessStore.customModels].join(","),
-      accessStore.defaultModel,
-    );
     const summarizeModel = allModel.find(
       (m) => m.name === SUMMARIZE_MODEL && m.available,
     );
@@ -145,7 +146,15 @@ function getSummarizeModel(
   if (currentModel.startsWith("gemini")) {
     return [GEMINI_SUMMARIZE_MODEL, ServiceProvider.Google];
   } else if (currentModel.startsWith("deepseek-")) {
-    return [DEEPSEEK_SUMMARIZE_MODEL, ServiceProvider.DeepSeek];
+    const summarizeModel = allModel.find(
+      (m) =>
+        m.name === DEEPSEEK_SUMMARIZE_MODEL &&
+        m.provider?.providerName === ServiceProvider.DeepSeek &&
+        m.available,
+    );
+    if (summarizeModel) {
+      return [DEEPSEEK_SUMMARIZE_MODEL, ServiceProvider.DeepSeek];
+    }
   }
 
   return [currentModel, providerName];
